@@ -78,14 +78,53 @@ class _MyHomePageState extends State<MyHomePage> {
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
               itemBuilder: (context, index) {
-                return ListTile(
-                  leading: Image.network(
-                    "https://image.tmdb.org/t/p/w500/${movies[index].posterPath}",
-                    width: 50,
-                    fit: BoxFit.cover,
+                return Padding(
+                  padding: EdgeInsets.only(
+                    left: 8,
+                    right: 8,
+                    top: index == 0 ? 4 : 0,
+                    bottom: index == movies.length - 1 ? 4 : 0,
                   ),
-                  title: Text(movies[index].title!),
-                  subtitle: Text(movies[index].overview!),
+                  child: InkWell(
+                    onTap: () {
+                      // Handle movie tap
+                      print("Movie tapped: ${movies[index].title}");
+                    },
+                    child: Card(
+                      color: Colors.white,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 75,
+                            child: AspectRatio(
+                              aspectRatio: 2 / 3,
+                              child: Image.network(
+                                "https://image.tmdb.org/t/p/w500/${movies[index].posterPath}",
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    movies[index].title!,
+                                    maxLines: 2,
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
+                                  Text(movies[index].overview!, maxLines: 5),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 );
               },
               itemCount: movies.length,
