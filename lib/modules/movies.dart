@@ -2,7 +2,7 @@ import 'dart:convert' as convert;
 
 class Movies {
   int? page;
-  List<Results>? results;
+  List<Movie>? results;
   int? totalPages;
   int? totalResults;
 
@@ -12,9 +12,9 @@ class Movies {
     final Map<String, dynamic> json = convert.jsonDecode(jsonString);
     page = json['page'];
     if (json['results'] != null) {
-      results = <Results>[];
+      results = <Movie>[];
       json['results'].forEach((v) {
-        results!.add(new Results.fromJson(v));
+        results!.add(new Movie.fromJson(v));
       });
     }
     totalPages = json['total_pages'];
@@ -33,7 +33,7 @@ class Movies {
   }
 }
 
-class Results {
+class Movie {
   bool? adult;
   String? backdropPath;
   List<int>? genreIds;
@@ -49,7 +49,7 @@ class Results {
   double? voteAverage;
   int? voteCount;
 
-  Results({
+  Movie({
     this.adult,
     this.backdropPath,
     this.genreIds,
@@ -66,7 +66,7 @@ class Results {
     this.voteCount,
   });
 
-  Results.fromJson(Map<String, dynamic> json) {
+  Movie.fromJson(Map<String, dynamic> json) {
     adult = json['adult'];
     backdropPath = json['backdrop_path'];
     genreIds = json['genre_ids'].cast<int>();

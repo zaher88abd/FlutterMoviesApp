@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:movies/modules/movies.dart';
+import 'package:movies/widgets/movie_list_item.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -85,46 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     top: index == 0 ? 4 : 0,
                     bottom: index == movies.length - 1 ? 4 : 0,
                   ),
-                  child: InkWell(
-                    onTap: () {
-                      // Handle movie tap
-                      print("Movie tapped: ${movies[index].title}");
-                    },
-                    child: Card(
-                      color: Colors.white,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 75,
-                            child: AspectRatio(
-                              aspectRatio: 2 / 3,
-                              child: Image.network(
-                                "https://image.tmdb.org/t/p/w500/${movies[index].posterPath}",
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    movies[index].title!,
-                                    maxLines: 2,
-                                    style: const TextStyle(fontSize: 20),
-                                  ),
-                                  Text(movies[index].overview!, maxLines: 5),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  child: MovieListItem(movie: movies[index]),
                 );
               },
               itemCount: movies.length,
