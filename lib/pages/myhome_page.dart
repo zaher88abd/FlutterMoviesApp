@@ -19,7 +19,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int currentPage = 1;
   bool isLoading = false;
-  List<Results> movies = [];
+  List<Movie> movies = [];
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -105,6 +105,5 @@ class _MyHomePageState extends State<MyHomePage> {
       currentPage++;
       _fetchPopularMovies();
     }
-    return;
   }
 }

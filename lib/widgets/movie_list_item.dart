@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:movies/modules/movie_provider.dart';
 import 'package:movies/modules/movies.dart';
+import 'package:provider/provider.dart';
 
 class MovieListItem extends StatelessWidget {
   final Movie movie;
@@ -7,11 +9,12 @@ class MovieListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    MovieProvider movieProvider =
+        Provider.of<MovieProvider>(context, listen: false);
     return InkWell(
       onTap: () {
-        // Handle movie item tap
-        // You can navigate to a details page or show a dialog with more information
-        print("Movie tapped: ${movie.title}");
+        movieProvider.setMovie(movie);
+        Navigator.pushNamed(context, "/movie", arguments: movie);
       },
       child: Card(
         color: Colors.white,
