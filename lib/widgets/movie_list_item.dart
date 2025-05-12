@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:movies/modules/movie_provider.dart';
 import 'package:movies/modules/movies.dart';
+import 'package:movies/pages/movie_details.dart';
 import 'package:provider/provider.dart';
 
 class MovieListItem extends StatelessWidget {
@@ -14,7 +15,7 @@ class MovieListItem extends StatelessWidget {
     return InkWell(
       onTap: () {
         movieProvider.setMovie(movie);
-        Navigator.pushNamed(context, "/movie", arguments: movie);
+        Navigator.of(context,).push(_createRoute());
       },
       child: Card(
         color: Colors.white,
@@ -50,6 +51,25 @@ class MovieListItem extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Route _createRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => const MovieDetail(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset( 1.0,0.0);
+        const end = Offset.zero;
+        const curve = Curves.ease;
+
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
     );
   }
 }
