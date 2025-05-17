@@ -1,3 +1,4 @@
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -20,6 +21,8 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isLoading = false;
   List<Movie> movies = [];
   final ScrollController _scrollController = ScrollController();
+  final StreamController<List<Movie>> _streamController =
+      StreamController<List<Movie>>();
 
   @override
   void initState() {
@@ -33,9 +36,8 @@ class _MyHomePageState extends State<MyHomePage> {
       if (isLoading) {
         return;
       }
-      setState(() {
-        isLoading = true;
-      });
+      isLoading = true;
+
       final url = Uri.parse(
         "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=$currentPage&sort_by=popularity.desc",
       );
@@ -49,14 +51,16 @@ class _MyHomePageState extends State<MyHomePage> {
       if (responce.statusCode == 200) {
         // Handle successful response
         final movies = Movies.fromJson(responce.body);
-        setState(() {
-          isLoading = false;
-          if (movies.results != null) {
-            this.movies.addAll(movies.results!);
-          }
-        });
+        isLoading = false;
+        if (movies.results != null) {
+          this.movies.addAll(movies.results!);
+          _streamController.add(this.movies);
+          currentPage++;
+        }
       }
-    } catch (e) {}
+    } catch (e) {
+      isLoading = false;
+    }
   }
 
   @override
@@ -66,32 +70,42 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Column(
-        children: [
-          Visibility(
-            visible: isLoading,
-            child: const LinearProgressIndicator(),
-          ),
-          Expanded(
-            child: ListView.builder(
-              shrinkWrap: true,
-              controller: _scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: EdgeInsets.only(
-                    left: 8,
-                    right: 8,
-                    top: index == 0 ? 4 : 0,
-                    bottom: index == movies.length - 1 ? 4 : 0,
+      body: StreamBuilder<List<Movie>>(
+        stream: _streamController.stream,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          } else if (snapshot.hasData && snapshot.data!.isEmpty) {
+            return const Center(child: Text("No movies found"));
+          } else {
+            final movies = snapshot.data ?? [];
+            return Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          left: 8,
+                          right: 8,
+                          top: index == 0 ? 4 : 0,
+                          bottom: index == movies.length - 1 ? 4 : 0,
+                        ),
+                        child: MovieListItem(movie: movies[index]),
+                      );
+                    },
+                    itemCount: movies.length,
                   ),
-                  child: MovieListItem(movie: movies[index]),
-                );
-              },
-              itemCount: movies.length,
-            ),
-          ),
-        ],
+                ),
+              ],
+            );
+          }
+        },
       ),
       floatingActionButton:
           null, // This trailing comma makes auto-formatting nicer for build methods.
@@ -101,7 +115,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void loadNextPage() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent) {
-      currentPage++;
       _fetchPopularMovies();
     }
   }
