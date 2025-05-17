@@ -1,10 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-import 'package:http/http.dart' as http;
 import 'package:movies/modules/movies.dart';
+import 'package:movies/repositories/movie_repository.dart';
 import 'package:movies/widgets/movie_list_item.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -19,7 +16,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int currentPage = 1;
   bool isLoading = false;
-  List<Movie> movies = [];
+  final MoviesRepository _moviesRepository = MoviesRepository();
+
   final ScrollController _scrollController = ScrollController();
   final StreamController<List<Movie>> _streamController =
       StreamController<List<Movie>>();
@@ -33,33 +31,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _fetchPopularMovies() async {
     try {
-      if (isLoading) {
-        return;
-      }
-      isLoading = true;
-
-      final url = Uri.parse(
-        "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=$currentPage&sort_by=popularity.desc",
-      );
-      final responce = await http.get(
-        url,
-        headers: {
-          'Authorization': "Bearer ${dotenv.env['MOVIES_API_KEY']}",
-          'accept': 'application/json',
-        },
-      );
-      if (responce.statusCode == 200) {
-        // Handle successful response
-        final movies = Movies.fromJson(responce.body);
-        isLoading = false;
-        if (movies.results != null) {
-          this.movies.addAll(movies.results!);
-          _streamController.add(this.movies);
-          currentPage++;
-        }
-      }
+      print("Fetching movies for page: $currentPage");
+      _moviesRepository.fetchMovies(currentPage).then((movie) {
+        _streamController.add(movie);
+      });
+      currentPage++;
     } catch (e) {
-      isLoading = false;
+      _streamController.addError('Failed to load movies: $e');
     }
   }
 
