@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:movies/modules/genres.dart';
 import 'package:movies/modules/movies.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -44,6 +45,28 @@ class MoviesRepository {
       // Handle successful response
       final movie = Movie.fromJson(jsonDecode(responce.body));
       return [movie];
+    }
+    return [];
+  }
+
+  Future<List<Genre>> fetchGenres() async {
+    final url = Uri.parse(
+      "https://api.themoviedb.org/3/genre/movie/list?language=en-US",
+    );
+    final responce = await http.get(
+      url,
+      headers: {
+        'Authorization': "Bearer ${dotenv.env['MOVIES_API_KEY']}",
+        'accept': 'application/json',
+      },
+    );
+    if (responce.statusCode == 200) {
+      // Handle successful response
+      print(responce.body.toString());
+      final genresJson = jsonDecode(responce.body);
+      final Genres genresList = Genres.fromJson(genresJson);
+      print("List Length ${genresList.genres.length}");
+      return genresList.genres;
     }
     return [];
   }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:movies/modules/movies.dart';
 import 'package:movies/repositories/movie_repository.dart';
+import 'package:movies/widgets/genre_filter_widget.dart';
 import 'package:movies/widgets/movie_list_item.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -21,6 +22,8 @@ class _MyHomePageState extends State<MyHomePage> {
   final ScrollController _scrollController = ScrollController();
   final StreamController<List<Movie>> _streamController =
       StreamController<List<Movie>>();
+
+  final Set<int> _selectedCategories = <int>{};
 
   @override
   void initState() {
@@ -61,6 +64,15 @@ class _MyHomePageState extends State<MyHomePage> {
             final movies = snapshot.data ?? [];
             return Column(
               children: [
+                GenreFilterWidget(
+                  onCategorySelected: (Set<int> selectedSet) {
+                    setState(() {
+                      _selectedCategories.clear();
+                      _selectedCategories.addAll(selectedSet);
+                    });
+                  },
+                ),
+                SizedBox(height: 8),
                 Expanded(
                   child: ListView.builder(
                     shrinkWrap: true,
