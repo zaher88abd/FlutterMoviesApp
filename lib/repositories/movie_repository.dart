@@ -11,7 +11,7 @@ class MoviesRepository {
 
   Future<List<Movie>> fetchMovies(int page) async {
     final url = Uri.parse(
-      "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=$page&sort_by=popularity.desc",
+      "https://api.themoviedb.org/3/discover/movie?include_adult=false&language=en-US&page=$page&sort_by=popularity.desc",
     );
     final responce = await http.get(
       url,
@@ -30,7 +30,7 @@ class MoviesRepository {
     return _movies;
   }
 
-  Future<List<Movie>> fetchMovieDetails(int id) async {
+  Future<Movie?> fetchMovieDetails(int id) async {
     final url = Uri.parse(
       "https://api.themoviedb.org/3/movie/$id?language=en-US",
     );
@@ -44,14 +44,14 @@ class MoviesRepository {
     if (responce.statusCode == 200) {
       // Handle successful response
       final movie = Movie.fromJson(jsonDecode(responce.body));
-      return [movie];
+      return movie;
     }
-    return [];
+    return null;
   }
 
   Future<List<Genre>> fetchGenres() async {
     final url = Uri.parse(
-      "https://api.themoviedb.org/3/genre/movie/list?language=en-US",
+      "https://api.themoviedb.org/3/genre/movie/list?language=en-US&include_adult=false",
     );
     final responce = await http.get(
       url,
@@ -62,10 +62,8 @@ class MoviesRepository {
     );
     if (responce.statusCode == 200) {
       // Handle successful response
-      print(responce.body.toString());
       final genresJson = jsonDecode(responce.body);
       final Genres genresList = Genres.fromJson(genresJson);
-      print("List Length ${genresList.genres.length}");
       return genresList.genres;
     }
     return [];

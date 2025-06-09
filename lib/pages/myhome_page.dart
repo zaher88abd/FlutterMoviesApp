@@ -34,7 +34,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _fetchPopularMovies() async {
     try {
-      print("Fetching movies for page: $currentPage");
       _moviesRepository.fetchMovies(currentPage).then((movie) {
         _streamController.add(movie);
       });
@@ -61,7 +60,24 @@ class _MyHomePageState extends State<MyHomePage> {
           } else if (snapshot.hasData && snapshot.data!.isEmpty) {
             return const Center(child: Text("No movies found"));
           } else {
-            final movies = snapshot.data ?? [];
+            final List<Movie> filteredMovies;
+            if (_selectedCategories.isNotEmpty) {
+              filteredMovies =
+                  snapshot.data?.where((Movie m) {
+                    if (m.genreIds != null) {
+                      for (var g in m.genreIds!) {
+                        if (_selectedCategories.contains(g)) {
+                          return true;
+                        }
+                      }
+                    }
+                    return false;
+                  }).toList() ??
+                  [];
+            } else {
+              filteredMovies = snapshot.data ?? [];
+            }
+            final movies = filteredMovies;
             return Column(
               children: [
                 GenreFilterWidget(

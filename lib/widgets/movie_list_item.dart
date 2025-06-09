@@ -10,15 +10,17 @@ class MovieListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    MovieProvider movieProvider =
-        Provider.of<MovieProvider>(context, listen: false);
+    MovieProvider movieProvider = Provider.of<MovieProvider>(
+      context,
+      listen: false,
+    );
     return InkWell(
       onTap: () {
         movieProvider.setMovie(movie);
-        Navigator.of(context,).push(_createRoute());
+        Navigator.of(context).push(_createRoute());
       },
       child: Card(
-        color: Colors.white,
+        color: movie.adult! ? Colors.red : Colors.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -56,19 +58,20 @@ class MovieListItem extends StatelessWidget {
 
   Route _createRoute() {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => const MovieDetail(),
+      pageBuilder:
+          (context, animation, secondaryAnimation) => const MovieDetail(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset( 1.0,0.0);
+        const begin = Offset(1.0, 0.0);
         const end = Offset.zero;
         const curve = Curves.ease;
 
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var tween = Tween(
+          begin: begin,
+          end: end,
+        ).chain(CurveTween(curve: curve));
         var offsetAnimation = animation.drive(tween);
 
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
+        return SlideTransition(position: offsetAnimation, child: child);
       },
     );
   }
